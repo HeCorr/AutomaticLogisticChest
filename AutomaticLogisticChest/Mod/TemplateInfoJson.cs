@@ -7,7 +7,7 @@
 //     the code is regenerated.
 // </auto-generated>
 // ------------------------------------------------------------------------------
-namespace AutomaticLogisticChest.Mod.locale
+namespace AutomaticLogisticChest.Mod
 {
     using System.Linq;
     using System.Text;
@@ -19,7 +19,7 @@ namespace AutomaticLogisticChest.Mod.locale
     /// Class to produce the template output
     /// </summary>
     
-    #line 1 "C:\Users\TillO\source\repos\AutomaticLogisticChest\AutomaticLogisticChest\Mod\locale\TemplateInfoJson.tt"
+    #line 1 "C:\Users\TillO\source\repos\AutomaticLogisticChest\AutomaticLogisticChest\Mod\TemplateInfoJson.tt"
     [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.TextTemplating", "15.0.0.0")]
     public partial class TemplateInfoJson : TemplateInfoJsonBase
     {
@@ -32,7 +32,7 @@ namespace AutomaticLogisticChest.Mod.locale
             this.Write("\r\n");
             this.Write("\r\n\r\n{\r\n\t\"name\": \"AutomaticLogisticChest\",\r\n\t\"version\": \"");
             
-            #line 12 "C:\Users\TillO\source\repos\AutomaticLogisticChest\AutomaticLogisticChest\Mod\locale\TemplateInfoJson.tt"
+            #line 12 "C:\Users\TillO\source\repos\AutomaticLogisticChest\AutomaticLogisticChest\Mod\TemplateInfoJson.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString()));
             
             #line default
