@@ -7,6 +7,13 @@ script.on_event(defines.events.on_robot_built_entity, function(event)
 end)
 
 function handleEvent(event)
+	local buffertimeRequester = settings.global["AutomaticLogisticChest-BuffertimeRequester"].value
+	local buffertimeProvider = settings.global["AutomaticLogisticChest-BuffertimeProvider"].value
+	
+	if (buffertimeRequester == 0 and buffertimeProvider == 0) then
+		return
+	end
+
 	local created_entity = event.created_entity
 
 	if created_entity.type == "logistic-container" then
@@ -29,13 +36,13 @@ function handleEvent(event)
 			
 			if #inserters > 0 then
 				
-				if (created_entity.prototype.logistic_mode == "requester") then
+				if (created_entity.prototype.logistic_mode == "requester" and buffertimeRequester > 0) then
 					local inputs = {}
 					
 					for inserter = 1, #inserters do
-						if inserters[inserter].pickup_target == nil and comparePositions(inserters[inserter].pickup_position, created_entity.position) then 
-							if inserters[inserter].drop_target ~= nil and (inserters[inserter].drop_target.type == "assembling-machine" or inserters[inserter].drop_target.type == "furnace") and (inserters[inserter].drop_target.recipe ~=nill or inserters[inserter].drop_target.previous_recipe ~=nill) then
-								calc_inputs(inserters[inserter].drop_target, inputs)
+						if inserters[inserter].pickup_target == nil and comparePositions(inserters[inserter].pickup_position, created_entity.position) then
+							if inserters[inserter].drop_target ~= nil and (inserters[inserter].drop_target.type == "assembling-machine" or inserters[inserter].drop_target.type == "furnace") and inserters[inserter].drop_target.get_recipe() ~= nil then
+								calc_inputs(inserters[inserter].drop_target, inputs, buffertimeRequester)
 							end
 						end
 					end
@@ -49,14 +56,14 @@ function handleEvent(event)
 						slot)
 						slot = slot + 1
 					end
-				elseif (created_entity.prototype.logistic_mode == "passive-provider") then
+				elseif (created_entity.prototype.logistic_mode == "passive-provider" and buffertimeProvider > 0) then
 					for inserter = 1, #inserters do
 						if inserters[inserter].drop_target == nil and comparePositions(inserters[inserter].drop_position, created_entity.position) then
-							if inserters[inserter].pickup_target ~= nil and (inserters[inserter].pickup_target.type == "assembling-machine" or inserters[inserter].pickup_target.type == "furnace") and (inserters[inserter].pickup_target.recipe ~=nill or inserters[inserter].pickup_target.previous_recipe ~= nil) then
+							if inserters[inserter].pickup_target ~= nil and (inserters[inserter].pickup_target.type == "assembling-machine" or inserters[inserter].pickup_target.type == "furnace") and inserters[inserter].pickup_target.get_recipe() ~= nil then
 								
 								local outputs = {}
 								
-								calc_outputs(inserters[inserter].pickup_target, outputs)				
+								calc_outputs(inserters[inserter].pickup_target, outputs, buffertimeProvider)				
 								for name in pairs(outputs) do
 									created_entity.connect_neighbour(
 									{
@@ -96,7 +103,7 @@ function comparePositions(position1, position2)
 end
 
 -- calculate the required input for an entity
-function calc_inputs(entity, inputs)
+function calc_inputs(entity, inputs, buffertime)
 
 	local beacon_speed_effect = check_beacons(entity)
 
@@ -112,15 +119,10 @@ function calc_inputs(entity, inputs)
 	local crafting_speed = entity.prototype.crafting_speed * ( 1 + modeffects.speed + beacon_speed_effect)
 	
 	-- calculate the real craftingtime of this entity for this recipe
-	local craftingTime = entity.recipe.energy / crafting_speed
-	
-	local recipe = entity.recipe
-	if recipe == nil then
-		recipe = entity.previous_recipe
-	end
+	local craftingTime = entity.get_recipe().energy / crafting_speed
 	
 	-- if craftingtime > buffertime buffer enough items for one craft, else buffer how much the entity consumes in the buffertime
-	for _, ingred in ipairs(recipe.ingredients) do
+	for _, ingred in ipairs(entity.get_recipe().ingredients) do
 		local amount = 0
 		if ingred.type == "item" then
 			if ingred.amount ~= nil then
@@ -144,7 +146,7 @@ function calc_inputs(entity, inputs)
 end
 
 -- calculate the output of an entity
-function calc_outputs(entity, outputs)
+function calc_outputs(entity, outputs, buffertime)
 
 	local beacon_speed_effect = check_beacons(entity)
 
@@ -158,17 +160,12 @@ function calc_outputs(entity, outputs)
 
 	-- calculate the craftingspeed of the entity
 	local crafting_speed = entity.prototype.crafting_speed * ( 1 + modeffects.speed + beacon_speed_effect)
-	
+
 	-- calculate the real craftingtime of this entity for this recipe
-	local craftingTime = entity.recipe.energy / crafting_speed
-	
-	local recipe = entity.recipe
-	if recipe == nil then
-		recipe = entity.previous_recipe
-	end
+	local craftingTime = entity.get_recipe().energy / crafting_speed
 	
 	-- if craftingtime > buffertime buffer the items of one craft, else buffer how much the entity crafts in the buffertime
-	for _, product in ipairs(recipe.products) do
+	for _, product in ipairs(entity.get_recipe().products) do
 		local amount = 0
 		if product.type == "item" then
 			if product.amount ~= nil then
@@ -224,7 +221,6 @@ function check_beacons(entity)
 	end
 	
 	return modeffects.speed
-
 end
 
 -- calculate the effects of all the modules in the entity and adds it to modeffects.

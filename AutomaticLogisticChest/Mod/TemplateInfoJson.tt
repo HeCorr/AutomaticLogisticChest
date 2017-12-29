@@ -3,16 +3,13 @@
 <#@ import namespace="System.Linq" #>
 <#@ import namespace="System.Text" #>
 <#@ import namespace="System.Collections.Generic" #>
-
 <#@ import namespace="System.Reflection" #>
-
-
 {
 	"name": "AutomaticLogisticChest",
-	"version": "<#= System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString() #>",
+	"version": "<#= System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString().Substring(2) #>",
 	"title": "Automatic LogisticChest",
 	"description": "The Mods sets the request of requester chest and the network condition of inserters that insert into passiveprovider chests when those chests are build.",
 	"author": "Hideaki",
 	"factorio_version": "0.16",
-	"dependencies": ["base >= 0.15.0"]
+	"dependencies": ["base >= 0.16.0"]
 }

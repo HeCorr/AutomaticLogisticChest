@@ -29,11 +29,10 @@ namespace AutomaticLogisticChest.Mod
         /// </summary>
         public virtual string TransformText()
         {
-            this.Write("\r\n");
-            this.Write("\r\n\r\n{\r\n\t\"name\": \"AutomaticLogisticChest\",\r\n\t\"version\": \"");
+            this.Write("{\r\n\t\"name\": \"AutomaticLogisticChest\",\r\n\t\"version\": \"");
             
-            #line 12 "C:\Users\TillO\source\repos\AutomaticLogisticChest\AutomaticLogisticChest\Mod\TemplateInfoJson.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString()));
+            #line 9 "C:\Users\TillO\source\repos\AutomaticLogisticChest\AutomaticLogisticChest\Mod\TemplateInfoJson.tt"
+            this.Write(this.ToStringHelper.ToStringWithCulture(System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString().Substring(2)));
             
             #line default
             #line hidden
@@ -42,7 +41,7 @@ namespace AutomaticLogisticChest.Mod
 	""description"": ""The Mods sets the request of requester chest and the network condition of inserters that insert into passiveprovider chests when those chests are build."",
 	""author"": ""Hideaki"",
 	""factorio_version"": ""0.16"",
-	""dependencies"": [""base >= 0.15.0""]
+	""dependencies"": [""base >= 0.16.0""]
 }");
             return this.GenerationEnvironment.ToString();
         }

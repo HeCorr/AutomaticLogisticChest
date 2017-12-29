@@ -1,11 +1,19 @@
 ﻿data:extend({
 	{
 		type = "int-setting",
-		name = "AutomaticLogisticChest-Buffertime",
+		name = "AutomaticLogisticChest-BuffertimeRequester",
 		setting_type = "runtime-global",
 		default_value = 10,
-		minimum_value = 1,
-		maximum_value = 120,
+		minimum_value = 0,
+		maximum_value = 3600,
+	},
+	{
+		type = "int-setting",
+		name = "AutomaticLogisticChest-BuffertimeProvider",
+		setting_type = "runtime-global",
+		default_value = 10,
+		minimum_value = 0,
+		maximum_value = 3600,
 	}
 })
 
