@@ -37,8 +37,8 @@ namespace AutomaticLogisticChest.Mod
             #line default
             #line hidden
             this.Write(@""",
-	""title"": ""Automatic LogisticChest"",
-	""description"": ""The Mods sets the request of requester chest and the network condition of inserters that insert into passiveprovider chests when those chests are build."",
+	""title"": ""Automatic Logistic Chests"",
+	""description"": ""The mods sets the request of requester chest and the network condition of inserters that insert into passive provider chests when those chests are build."",
 	""author"": ""Hideaki"",
 	""factorio_version"": ""0.16"",
 	""dependencies"": [""base >= 0.16.0""]
