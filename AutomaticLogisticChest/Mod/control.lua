@@ -9,7 +9,8 @@ end)
 function handleEvent(event)
 	local buffertimeRequester = settings.global["AutomaticLogisticChest-BuffertimeRequester"].value
 	local buffertimeProvider = settings.global["AutomaticLogisticChest-BuffertimeProvider"].value
-	
+	local connectionType = settings.global["AutomaticLogisticChest-ConnectionType"].value
+
 	if (buffertimeRequester == 0 and buffertimeProvider == 0) then
 		return
 	end
@@ -63,29 +64,79 @@ function handleEvent(event)
 								
 								local outputs = {}
 								
-								calc_outputs(inserters[inserter].pickup_target, outputs, buffertimeProvider)				
+								calc_outputs(inserters[inserter].pickup_target, outputs, buffertimeProvider)	
+								
 								for name in pairs(outputs) do
-									created_entity.connect_neighbour(
-									{
-										wire = defines.wire_type.red,
-										target_entity = inserters[inserter]
-									})
-									
-									local controlBehavior = inserters[inserter].get_or_create_control_behavior()
-									controlBehavior.circuit_condition = 
-									{
-										condition = 
+									if connectionType == "Logistic"  then
+										local controlBehavior = inserters[inserter].get_or_create_control_behavior()
+										controlBehavior.connect_to_logistic_network = true
+										controlBehavior.logistic_condition = 
 										{
-											comparator = "<",
-											first_signal =
+											condition = 
 											{
-												type = "item",
-												name = name
-											},
-											constant = math.ceil(outputs[name])
+												comparator = "<",
+												first_signal =
+												{
+													type = "item",
+													name = name
+												},
+												constant = math.ceil(outputs[name])
+											}
 										}
-									}
+									else
+										if connectionType == "GreenCircuit" then
+											created_entity.connect_neighbour(
+											{
+												wire = defines.wire_type.green,
+												target_entity = inserters[inserter]
+											})
+										else
+											created_entity.connect_neighbour(
+											{
+												wire = defines.wire_type.red,
+												target_entity = inserters[inserter]
+											})
+										end
+
+										local controlBehavior = inserters[inserter].get_or_create_control_behavior()
+										controlBehavior.circuit_condition = 
+										{
+											condition = 
+											{
+												comparator = "<",
+												first_signal =
+												{
+													type = "item",
+													name = name
+												},
+												constant = math.ceil(outputs[name])
+											}
+										}
+									end
 								end
+
+--								for name in pairs(outputs) do
+--									created_entity.connect_neighbour(
+--									{
+--										wire = defines.wire_type.red,
+--										target_entity = inserters[inserter]
+--									})
+--									
+--									local controlBehavior = inserters[inserter].get_or_create_control_behavior()
+--									controlBehavior.circuit_condition = 
+--									{
+--										condition = 
+--										{
+--											comparator = "<",
+--											first_signal =
+--											{
+--												type = "item",
+--												name = name
+--											},
+--											constant = math.ceil(outputs[name])
+--										}
+--									}
+--								end
 							end
 						end
 					end

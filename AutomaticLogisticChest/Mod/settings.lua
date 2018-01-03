@@ -14,7 +14,14 @@
 		default_value = 10,
 		minimum_value = 0,
 		maximum_value = 3600,
-	}
+	},
+	{
+      type = "string-setting",
+      name = "AutomaticLogisticChest-ConnectionType",
+      setting_type = "runtime-global",
+      default_value = "RedCircuit",
+      allowed_values = {"RedCircuit", "GreenCircuit", "Logistic"},
+   }
 })
 
 --[[
