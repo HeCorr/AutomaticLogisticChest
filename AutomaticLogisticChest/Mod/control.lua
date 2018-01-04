@@ -1,20 +1,58 @@
-﻿script.on_event(defines.events.on_built_entity, function(event)
-	handleEvent(event)
+﻿--for ammo loader:  luaForce.reset_technology_effects() --reapplies all technology effects, including unlocking recipes.
+
+--0.16 Copy Paste from assembler to requester chest now scales with assembler speed and recipe crafting time.
+--Added LuaEntityPrototype::allowed_effects read.
+--Added LuaEntity::effects read.
+--the effects being applied to this entity
+--like 
+--{
+--	consumption=
+--	{
+--		bonus=0.6
+--	},
+--	speed =
+--	{
+--		bonus = -0.15
+--	},
+--	productivity =
+--	{
+--		bonus = 0.06
+--	},
+--	pollution = =
+--	{
+--		bonus = 0.075
+--	}
+--}
+--bonus 0.5 means a value of 150%
+
+
+script.on_event(defines.events.on_built_entity, function(event)
+	local setting = settings.global["AutomaticLogisticChest-BuildOn"].value
+
+	if setting == "Manual" or setting == "Both" then
+		handleEvent(event)
+	end
 end)
 
 script.on_event(defines.events.on_robot_built_entity, function(event)
-	handleEvent(event)
+	local setting = settings.global["AutomaticLogisticChest-BuildOn"].value
+
+	if setting == "Bot" or setting == "Both" then
+		handleEvent(event)
+	end
 end)
 
 function handleEvent(event)
-	local buffertimeRequester = settings.global["AutomaticLogisticChest-BuffertimeRequester"].value
-	local buffertimeProvider = settings.global["AutomaticLogisticChest-BuffertimeProvider"].value
-	local connectionType = settings.global["AutomaticLogisticChest-ConnectionType"].value
+	local bufferTimeRequester = settings.global["AutomaticLogisticChest-BuffertimeRequester"].value
+	local bufferTimeProvider = settings.global["AutomaticLogisticChest-BuffertimeProvider"].value
 
-	if (buffertimeRequester == 0 and buffertimeProvider == 0) then
+	if (bufferTimeRequester == 0 and bufferTimeProvider == 0) then
 		return
 	end
 
+	local connectionType = settings.global["AutomaticLogisticChest-ConnectionType"].value
+	local overrideExisting = settings.global["AutomaticLogisticChest-OverrideExisting"].value
+	
 	local created_entity = event.created_entity
 
 	if created_entity.type == "logistic-container" then
@@ -37,13 +75,13 @@ function handleEvent(event)
 			
 			if #inserters > 0 then
 				
-				if (created_entity.prototype.logistic_mode == "requester" and buffertimeRequester > 0) then
+				if (created_entity.prototype.logistic_mode == "requester" and bufferTimeRequester > 0) then
 					local inputs = {}
 					
 					for inserter = 1, #inserters do
 						if inserters[inserter].pickup_target == nil and comparePositions(inserters[inserter].pickup_position, created_entity.position) then
 							if inserters[inserter].drop_target ~= nil and (inserters[inserter].drop_target.type == "assembling-machine" or inserters[inserter].drop_target.type == "furnace") and inserters[inserter].drop_target.get_recipe() ~= nil then
-								calc_inputs(inserters[inserter].drop_target, inputs, buffertimeRequester)
+								calcInputs(inserters[inserter].drop_target, inputs, bufferTimeRequester)
 							end
 						end
 					end
@@ -57,86 +95,55 @@ function handleEvent(event)
 						slot)
 						slot = slot + 1
 					end
-				elseif (created_entity.prototype.logistic_mode == "passive-provider" and buffertimeProvider > 0) then
+				elseif (created_entity.prototype.logistic_mode == "passive-provider" and bufferTimeProvider > 0) then
 					for inserter = 1, #inserters do
 						if inserters[inserter].drop_target == nil and comparePositions(inserters[inserter].drop_position, created_entity.position) then
 							if inserters[inserter].pickup_target ~= nil and (inserters[inserter].pickup_target.type == "assembling-machine" or inserters[inserter].pickup_target.type == "furnace") and inserters[inserter].pickup_target.get_recipe() ~= nil then
 								
 								local outputs = {}
-								
-								calc_outputs(inserters[inserter].pickup_target, outputs, buffertimeProvider)	
+								calcOutputs(inserters[inserter].pickup_target, outputs, bufferTimeProvider)	
 								
 								for name in pairs(outputs) do
-									if connectionType == "Logistic"  then
-										local controlBehavior = inserters[inserter].get_or_create_control_behavior()
-										controlBehavior.connect_to_logistic_network = true
-										controlBehavior.logistic_condition = 
+								
+									local condition = 
+									{
+										condition = 
 										{
-											condition = 
+											comparator = "<",
+											first_signal =
 											{
-												comparator = "<",
-												first_signal =
-												{
-													type = "item",
-													name = name
-												},
-												constant = math.ceil(outputs[name])
-											}
+												type = "item",
+												name = name
+											},
+											constant = math.ceil(outputs[name])
 										}
-									else
-										if connectionType == "GreenCircuit" then
-											created_entity.connect_neighbour(
-											{
-												wire = defines.wire_type.green,
-												target_entity = inserters[inserter]
-											})
+									}
+									
+									local controlBehavior = inserters[inserter].get_or_create_control_behavior()
+									
+									if overrideExisting or (controlBehavior.logistic_condition ~=nil and controlBehavior.circuit_condition ~= nil) then
+										if connectionType == "Logistic"  then
+											controlBehavior.connect_to_logistic_network = true
+											controlBehavior.logistic_condition = condition
 										else
-											created_entity.connect_neighbour(
-											{
-												wire = defines.wire_type.red,
-												target_entity = inserters[inserter]
-											})
-										end
-
-										local controlBehavior = inserters[inserter].get_or_create_control_behavior()
-										controlBehavior.circuit_condition = 
-										{
-											condition = 
-											{
-												comparator = "<",
-												first_signal =
+											if connectionType == "GreenCable" then
+												created_entity.connect_neighbour(
 												{
-													type = "item",
-													name = name
-												},
-												constant = math.ceil(outputs[name])
-											}
-										}
+													wire = defines.wire_type.green,
+													target_entity = inserters[inserter]
+												})
+											else
+												created_entity.connect_neighbour(
+												{
+													wire = defines.wire_type.red,
+													target_entity = inserters[inserter]
+												})
+											end
+
+											controlBehavior.circuit_condition = condition
+										end
 									end
 								end
-
---								for name in pairs(outputs) do
---									created_entity.connect_neighbour(
---									{
---										wire = defines.wire_type.red,
---										target_entity = inserters[inserter]
---									})
---									
---									local controlBehavior = inserters[inserter].get_or_create_control_behavior()
---									controlBehavior.circuit_condition = 
---									{
---										condition = 
---										{
---											comparator = "<",
---											first_signal =
---											{
---												type = "item",
---												name = name
---											},
---											constant = math.ceil(outputs[name])
---										}
---									}
---								end
 							end
 						end
 					end
@@ -154,25 +161,12 @@ function comparePositions(position1, position2)
 end
 
 -- calculate the required input for an entity
-function calc_inputs(entity, inputs, buffertime)
+function calcInputs(entity, inputs, bufferTime)
 
-	local beacon_speed_effect = check_beacons(entity)
-
-	local modeffects =
-	{
-		speed = 0,
-		prod = 0
-	}
-	
-	modeffects = calc_mods(entity, modeffects, 1)
-
-	-- calculate the craftingspeed of the entity
-	local crafting_speed = entity.prototype.crafting_speed * ( 1 + modeffects.speed + beacon_speed_effect)
-	
 	-- calculate the real craftingtime of this entity for this recipe
-	local craftingTime = entity.get_recipe().energy / crafting_speed
+	local craftingTime = entity.get_recipe().energy / getCraftingSpeed(entity)
 	
-	-- if craftingtime > buffertime buffer enough items for one craft, else buffer how much the entity consumes in the buffertime
+	-- if craftingtime > bufferTime buffer enough items for one craft, else buffer how much the entity consumes in the bufferTime
 	for _, ingred in ipairs(entity.get_recipe().ingredients) do
 		local amount = 0
 		if ingred.type == "item" then
@@ -182,8 +176,8 @@ function calc_inputs(entity, inputs, buffertime)
 		end
 		
 		if amount > 0 then
-			if(craftingTime < buffertime) then
-				amount = (amount / craftingTime) * buffertime
+			if(craftingTime < bufferTime) then
+				amount = (amount / craftingTime) * bufferTime
 			end
 			
 			if inputs[ingred.name] == nil then
@@ -197,25 +191,12 @@ function calc_inputs(entity, inputs, buffertime)
 end
 
 -- calculate the output of an entity
-function calc_outputs(entity, outputs, buffertime)
-
-	local beacon_speed_effect = check_beacons(entity)
-
-	local modeffects =
-	{
-		speed = 0,
-		prod = 0
-	}
-	
-	modeffects = calc_mods(entity, modeffects, 1)
-
-	-- calculate the craftingspeed of the entity
-	local crafting_speed = entity.prototype.crafting_speed * ( 1 + modeffects.speed + beacon_speed_effect)
+function calcOutputs(entity, outputs, bufferTime)
 
 	-- calculate the real craftingtime of this entity for this recipe
-	local craftingTime = entity.get_recipe().energy / crafting_speed
+	local craftingTime = entity.get_recipe().energy / getCraftingSpeed(entity)
 	
-	-- if craftingtime > buffertime buffer the items of one craft, else buffer how much the entity crafts in the buffertime
+	-- if craftingtime > bufferTime buffer the items of one craft, else buffer how much the entity crafts in the bufferTime
 	for _, product in ipairs(entity.get_recipe().products) do
 		local amount = 0
 		if product.type == "item" then
@@ -227,8 +208,8 @@ function calc_outputs(entity, outputs, buffertime)
 		end
 		
 		if amount > 0 then
-			if(craftingTime < buffertime) then
-				amount = (amount / craftingTime) * buffertime
+			if(craftingTime < bufferTime) then
+				amount = (amount / craftingTime) * bufferTime
 			end
 			
 			if outputs[product.name] == nil then
@@ -240,63 +221,14 @@ function calc_outputs(entity, outputs, buffertime)
 	end
 end
 
--- calculate speed effects of beacons.
-function check_beacons(entity)
-	
-	local modeffects =
-	{
-		speed = 0,
-		prod = 0
-	}
-	
-	local x = entity.position.x
-	local y = entity.position.y
-	local machine_box = entity.prototype.selection_box
-	local beacon_dist = game.entity_prototypes["beacon"].supply_area_distance
+function getCraftingSpeed(entity)
+	local craftingSpeed = entity.prototype.crafting_speed
 
-	for _,beacon in pairs(entity.surface.find_entities_filtered
-	{ area = 
-		{
-			{
-				x + machine_box.left_top.x - beacon_dist,
-				y + machine_box.left_top.y - beacon_dist
-			}, 
-			{
-				x + machine_box.right_bottom.x + beacon_dist,
-				y + machine_box.right_bottom.y + beacon_dist
-			}
-		},
-		type="beacon"
-	}) do	
-		calc_mods(beacon, modeffects, 0.5)
-	end
-	
-	return modeffects.speed
-end
-
--- calculate the effects of all the modules in the entity and adds it to modeffects.
-function calc_mods(entity, modeffects, effectivity)
-	local modinv = entity.get_module_inventory()
-	local modcontents = modinv.get_contents()
-
-	for modname,modquant in pairs(modcontents) do
-		calc_mod(modname, modeffects, modquant, effectivity)
-	end 
-
-	return modeffects
-end
-
--- calculate the effects of a single module and adds it to modeffects.
-function calc_mod(modname, modeffects, modquant, effectivity )
-	local protoeffects = game.item_prototypes[modname].module_effects
-	
-	for effectname,effectvals in pairs(protoeffects) do
-		for _,bonamount in pairs(effectvals) do
-			if effectname == "speed" then
-				modeffects.speed = modeffects.speed + ( bonamount * modquant * effectivity)
-			elseif effectname == "productivity" then
-				modeffects.prod = modeffects.prod + (bonamount * modquant  * effectivity)
-			end
+	if entity.effects ~= nil then
+		if entity.effects.speed ~= nil then
+			craftingSpeed = entity.prototype.crafting_speed * ( 1 + entity.effects.speed.bonus )
 		end
 	end
+
+	return craftingSpeed
 end

@@ -19,8 +19,21 @@
       type = "string-setting",
       name = "AutomaticLogisticChest-ConnectionType",
       setting_type = "runtime-global",
-      default_value = "RedCircuit",
-      allowed_values = {"RedCircuit", "GreenCircuit", "Logistic"},
+      default_value = "RedCable",
+      allowed_values = {"RedCable", "GreenCable", "Logistic"},
+   },
+	{
+      type = "bool-setting",
+      name = "AutomaticLogisticChest-OverrideExisting",
+      setting_type = "runtime-global",
+      default_value = true,
+   },
+	{
+      type = "string-setting",
+      name = "AutomaticLogisticChest-BuildOn",
+      setting_type = "runtime-global",
+      default_value = "Both",
+      allowed_values = {"Both", "Manual", "Bot"},
    }
 })
 
