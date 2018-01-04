@@ -1,4 +1,4 @@
-This mod makes using passive provider chests and requester chests easier
+This mod makes using passive provider chests and requester chests easier.
 
 .For a visual explanation have alook at
 <https://imgur.com/a/vt1ar>
@@ -21,5 +21,16 @@ Type of connection of provider: How should the Inserter be connected to the prov
 Setting a option to 0 deactivates that feature.
 
 Changelog:
-0.6577.34562 - Choice how to connect the provider added 
-0.6572.42672 - Port to 0.16
+0.6578.39285
+Fixed detection of existing conditions.
+
+0.6578.31914
+Added option to not override existing inserter conditions.
+Added option to only use modlogic when chest placed manually, by bot or by both.
+Changed logic to use entity.effects
+
+0.6577.34562
+Added choice how to connect the provider.
+
+0.6572.42672
+Port to 0.16

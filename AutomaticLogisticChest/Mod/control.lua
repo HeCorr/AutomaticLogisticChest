@@ -120,8 +120,8 @@ function handleEvent(event)
 									}
 									
 									local controlBehavior = inserters[inserter].get_or_create_control_behavior()
-									
-									if overrideExisting or (controlBehavior.logistic_condition ~=nil and controlBehavior.circuit_condition ~= nil) then
+
+									if overrideExisting or not (controlBehavior.get_circuit_network(defines.wire_type.green) ~=nil or controlBehavior.get_circuit_network(defines.wire_type.red) ~=nil or controlBehavior.connect_to_logistic_network == true) then
 										if connectionType == "Logistic"  then
 											controlBehavior.connect_to_logistic_network = true
 											controlBehavior.logistic_condition = condition
