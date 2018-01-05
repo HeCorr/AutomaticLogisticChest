@@ -71,6 +71,9 @@
     <None Include="Mod\control.lua">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Include="Mod\locale\de\locale.cfg">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="Mod\settings.lua">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

@@ -1,32 +1,4 @@
-﻿--for ammo loader:  luaForce.reset_technology_effects() --reapplies all technology effects, including unlocking recipes.
-
---0.16 Copy Paste from assembler to requester chest now scales with assembler speed and recipe crafting time.
---Added LuaEntityPrototype::allowed_effects read.
---Added LuaEntity::effects read.
---the effects being applied to this entity
---like 
---{
---	consumption=
---	{
---		bonus=0.6
---	},
---	speed =
---	{
---		bonus = -0.15
---	},
---	productivity =
---	{
---		bonus = 0.06
---	},
---	pollution = =
---	{
---		bonus = 0.075
---	}
---}
---bonus 0.5 means a value of 150%
-
-
-script.on_event(defines.events.on_built_entity, function(event)
+﻿script.on_event(defines.events.on_built_entity, function(event)
 	local setting = settings.global["AutomaticLogisticChest-BuildOn"].value
 
 	if setting == "Manual" or setting == "Both" then
