@@ -40,7 +40,7 @@ namespace AutomaticLogisticChest.Mod
 	""title"": ""Automatic Logistic Chests"",
 	""description"": ""The mods sets the request of requester chest and the network condition of inserters that insert into passive provider chests when those chests are build."",
 	""author"": ""Hideaki"",
-	""factorio_version"": ""0.16"",
+	""factorio_version"": ""0.17"",
 	""dependencies"": [""base >= 0.16.0""]
 }");
             return this.GenerationEnvironment.ToString();

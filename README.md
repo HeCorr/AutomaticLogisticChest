@@ -21,6 +21,10 @@ Type of connection of provider: How should the Inserter be connected to the prov
 Setting a option to 0 deactivates that feature.
 
 Changelog:
+0.7005.33974
+Changed to 0.17.
+Untested!
+
 0.6579.27338
 Added german localisation
 
