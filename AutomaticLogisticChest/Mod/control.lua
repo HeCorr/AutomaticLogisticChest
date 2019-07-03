@@ -1,8 +1,22 @@
-﻿script.on_event(defines.events.on_built_entity, function(event)
+﻿script.on_event("AutomaticLogisticChest-HotKeyHoover", function(event)
+	local player = game.players[event.player_index]
+	handleEvent(player.selected)	
+end)
+
+script.on_event("AutomaticLogisticChest-HotKeyAll", function(event)
+	for id, surf in pairs(game.surfaces) do
+		local chests = surf.find_entities_filtered({type = "logistic-container"})
+		for chest = 1, #chests do
+			handleEvent(chests[chest])
+		end
+    end
+end)
+
+script.on_event(defines.events.on_built_entity, function(event)
 	local setting = settings.global["AutomaticLogisticChest-BuildOn"].value
 
 	if setting == "Manual" or setting == "Both" then
-		handleEvent(event)
+		handleEvent(event.created_entity)
 	end
 end)
 
@@ -10,48 +24,46 @@ script.on_event(defines.events.on_robot_built_entity, function(event)
 	local setting = settings.global["AutomaticLogisticChest-BuildOn"].value
 
 	if setting == "Bot" or setting == "Both" then
-		handleEvent(event)
+		handleEvent(event.created_entity)
 	end
 end)
 
-function handleEvent(event)
-	local bufferTimeRequester = settings.global["AutomaticLogisticChest-BuffertimeRequester"].value
-	local bufferTimeProvider = settings.global["AutomaticLogisticChest-BuffertimeProvider"].value
+function handleEvent(chest)
+	if chest ~= nil and chest.type ~= nil and chest.type == "logistic-container" then
+		local bufferTimeRequester = settings.global["AutomaticLogisticChest-BuffertimeRequester"].value
+		local bufferTimeProvider = settings.global["AutomaticLogisticChest-BuffertimeProvider"].value
 
-	if (bufferTimeRequester == 0 and bufferTimeProvider == 0) then
-		return
-	end
+		if (bufferTimeRequester == 0 and bufferTimeProvider == 0) then
+			return
+		end
 
-	local connectionType = settings.global["AutomaticLogisticChest-ConnectionType"].value
-	local overrideExisting = settings.global["AutomaticLogisticChest-OverrideExisting"].value
+		local connectionType = settings.global["AutomaticLogisticChest-ConnectionType"].value
+		local overrideExisting = settings.global["AutomaticLogisticChest-OverrideExisting"].value
 	
-	local created_entity = event.created_entity
-
-	if created_entity.type == "logistic-container" then
-		if created_entity.prototype ~= nil and created_entity.prototype.logistic_mode ~= nil and (created_entity.prototype.logistic_mode == "requester" or created_entity.prototype.logistic_mode == "passive-provider") then
-			local inserters = created_entity.surface.find_entities_filtered(
+		if chest.prototype ~= nil and chest.prototype.logistic_mode ~= nil and (chest.prototype.logistic_mode == "requester" or chest.prototype.logistic_mode == "passive-provider") then
+			local inserters = chest.surface.find_entities_filtered(
 			{
 				area =
 				{
 					{
-						x = created_entity.position.x - 2,
-						y = created_entity.position.y - 2
+						x = chest.position.x - 2,
+						y = chest.position.y - 2
 					},
 					{
-						x = created_entity.position.x + 2,
-						y = created_entity.position.y + 2
+						x = chest.position.x + 2,
+						y = chest.position.y + 2
 					}
 				},
 				type = "inserter"
 			})
-			
+		
 			if #inserters > 0 then
 				
-				if (created_entity.prototype.logistic_mode == "requester" and bufferTimeRequester > 0) then
+				if (chest.prototype.logistic_mode == "requester" and bufferTimeRequester > 0) then
 					local inputs = {}
 					
 					for inserter = 1, #inserters do
-						if inserters[inserter].pickup_target == nil and comparePositions(inserters[inserter].pickup_position, created_entity.position) then
+						if inserters[inserter].pickup_target == chest or (inserters[inserter].pickup_target == nil and comparePositions(inserters[inserter].pickup_position, chest.position)) then
 							if inserters[inserter].drop_target ~= nil and (inserters[inserter].drop_target.type == "assembling-machine" or inserters[inserter].drop_target.type == "furnace") and inserters[inserter].drop_target.get_recipe() ~= nil then
 								calcInputs(inserters[inserter].drop_target, inputs, bufferTimeRequester)
 							end
@@ -59,7 +71,7 @@ function handleEvent(event)
 					end
 					local slot = 1
 					for name in pairs(inputs) do
-						created_entity.set_request_slot(
+						chest.set_request_slot(
 						{
 							name = name,
 							count = math.ceil(inputs[name])
@@ -67,9 +79,9 @@ function handleEvent(event)
 						slot)
 						slot = slot + 1
 					end
-				elseif (created_entity.prototype.logistic_mode == "passive-provider" and bufferTimeProvider > 0) then
+				elseif (chest.prototype.logistic_mode == "passive-provider" and bufferTimeProvider > 0) then
 					for inserter = 1, #inserters do
-						if inserters[inserter].drop_target == nil and comparePositions(inserters[inserter].drop_position, created_entity.position) then
+						if inserters[inserter].drop_target == chest or (inserters[inserter].drop_target == nil and comparePositions(inserters[inserter].drop_position, chest.position)) then
 							if inserters[inserter].pickup_target ~= nil and (inserters[inserter].pickup_target.type == "assembling-machine" or inserters[inserter].pickup_target.type == "furnace") and inserters[inserter].pickup_target.get_recipe() ~= nil then
 								
 								local outputs = {}
@@ -99,13 +111,13 @@ function handleEvent(event)
 											controlBehavior.logistic_condition = condition
 										else
 											if connectionType == "GreenCable" then
-												created_entity.connect_neighbour(
+												chest.connect_neighbour(
 												{
 													wire = defines.wire_type.green,
 													target_entity = inserters[inserter]
 												})
 											else
-												created_entity.connect_neighbour(
+												chest.connect_neighbour(
 												{
 													wire = defines.wire_type.red,
 													target_entity = inserters[inserter]
@@ -124,7 +136,6 @@ function handleEvent(event)
 		end
 	end
 end
-
 
 function comparePositions(position1, position2)
 	
