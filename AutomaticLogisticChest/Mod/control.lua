@@ -39,6 +39,11 @@ function handleEvent(chest)
 
 		local connectionType = settings.global["AutomaticLogisticChest-ConnectionType"].value
 		local overrideExisting = settings.global["AutomaticLogisticChest-OverrideExisting"].value
+		
+		local minRequester = settings.global["AutomaticLogisticChest-MinRequester"].value
+		local maxRequester = settings.global["AutomaticLogisticChest-MaxRequester"].value
+		local minProvider = settings.global["AutomaticLogisticChest-MinProvider"].value
+		local maxProvider = settings.global["AutomaticLogisticChest-MaxProvider"].value
 	
 		if chest.prototype ~= nil and chest.prototype.logistic_mode ~= nil and (chest.prototype.logistic_mode == "requester" or chest.prototype.logistic_mode == "passive-provider") then
 			local inserters = chest.surface.find_entities_filtered(
@@ -69,14 +74,29 @@ function handleEvent(chest)
 							end
 						end
 					end
+
+					for requestSlot = 1, chest.request_slot_count do
+						chest.clear_request_slot(requestSlot)
+					end
+
 					local slot = 1
-					for name in pairs(inputs) do
+					for itemName in pairs(inputs) do
+						local itemCount = math.ceil(inputs[itemName])
+
+						local proto = game.item_prototypes[itemName]
+						if (minRequester > 0 and itemCount < proto.stack_size * minRequester) then
+							itemCount = proto.stack_size * minRequester
+						end
+
+						if (maxRequester > 0 and itemCount > proto.stack_size * maxRequester) then
+							itemCount = proto.stack_size * maxRequester
+						end
+
 						chest.set_request_slot(
 						{
-							name = name,
-							count = math.ceil(inputs[name])
-						},
-						slot)
+							name = itemName,
+							count = math.ceil(itemCount)
+						}, slot)
 						slot = slot + 1
 					end
 				elseif (chest.prototype.logistic_mode == "passive-provider" and bufferTimeProvider > 0) then
@@ -87,8 +107,18 @@ function handleEvent(chest)
 								local outputs = {}
 								calcOutputs(inserters[inserter].pickup_target, outputs, bufferTimeProvider)	
 								
-								for name in pairs(outputs) do
-								
+								for itemName in pairs(outputs) do
+									local itemCount = math.ceil(outputs[itemName])
+
+									local proto = game.item_prototypes[itemName]
+									if (minProvider > 0 and itemCount < proto.stack_size * minProvider) then
+										itemCount = proto.stack_size * minProvider
+									end
+
+									if (maxProvider > 0 and itemCount > proto.stack_size * maxProvider) then
+										itemCount = proto.stack_size * maxProvider
+									end
+
 									local condition = 
 									{
 										condition = 
@@ -97,9 +127,9 @@ function handleEvent(chest)
 											first_signal =
 											{
 												type = "item",
-												name = name
+												name = itemName
 											},
-											constant = math.ceil(outputs[name])
+											constant = math.ceil(itemCount)
 										}
 									}
 									
@@ -140,7 +170,6 @@ end
 function comparePositions(position1, position2)
 	
 	return position1.x > position2.x - 0.5 and position1.x < position2.x + 0.5 and position1.y > position2.y - 0.5 and position1.y < position2.y + 0.5
-
 end
 
 -- calculate the required input for an entity
@@ -169,7 +198,6 @@ function calcInputs(entity, inputs, bufferTime)
 					
 			inputs[ingred.name] = inputs[ingred.name] + amount
 		end
-		
 	end
 end
 

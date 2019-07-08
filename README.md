@@ -5,7 +5,7 @@ This mod makes using passive provider chests and requester chests easier.
 
 Upon placement (bot and manual)  of arequester chest all inserters that have that new chest as pickup location have the machines at their droplocations evaluated. For every furnace/machine the material consuption gets calculated, is multiplied by the configured amount and is added to the request of the requester chest. 
 
-Upon placement (bot and manual)  of a passive provider chest all Inserters that have this chest as dropoff location have that machines at their pickup location evaluated. For every furnace/machine the procduction gets calculated. Depending on the configuration the inserter is connected through red or green wire or directly to the logistic network. The inserter is set to only be active when the produced item in the chest or in the network is below the threshhold.
+Upon placement (bot and manual)  of a passive provider chest all Inserters that have this chest as dropoff location have the machines at their pickup location evaluated. For every furnace/machine the procduction gets calculated. Depending on the configuration the inserter is connected through red or green wire or directly to the logistic network. The inserter is set to only be active when the produced item in the chest or in the network is below the threshhold.
 The threshhold is calculated through the production of the machine.
 
 How is it calculated?
@@ -21,9 +21,15 @@ Type of connection of provider: How should the Inserter be connected to the prov
 Setting a option to 0 deactivates that feature.
 
 Changelog:
+0.7128.33835
+Bugfix for overriding existing conditions on a requester
+
+0.7128.32690
+Added options for setting a min and max stackcount to request/provide
+
 0.7123.34139
 Added two hotkeys.
-One for reevalutating the chest under the cursor and one for reevaluating all chests.
+One for reevaluating the chest under the cursor and one for reevaluating all chests.
 Tested with 0.16.51, but should be compatible with 0.17.x
 
 0.7005.33974
