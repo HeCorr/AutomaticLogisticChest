@@ -21,6 +21,9 @@ Type of connection of provider: How should the Inserter be connected to the prov
 Setting a option to 0 deactivates that feature.
 
 Changelog:
+0.7132.29867
+Bugfix for not resetting requester chests when no machine/smelter is connected
+
 0.7128.33835
 Bugfix for overriding existing conditions on a requester
 

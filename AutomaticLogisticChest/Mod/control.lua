@@ -75,29 +75,31 @@ function handleEvent(chest)
 						end
 					end
 
-					for requestSlot = 1, chest.request_slot_count do
-						chest.clear_request_slot(requestSlot)
-					end
-
-					local slot = 1
-					for itemName in pairs(inputs) do
-						local itemCount = math.ceil(inputs[itemName])
-
-						local proto = game.item_prototypes[itemName]
-						if (minRequester > 0 and itemCount < proto.stack_size * minRequester) then
-							itemCount = proto.stack_size * minRequester
+					if #inputs > 0 then					
+						for requestSlot = 1, chest.request_slot_count do
+							chest.clear_request_slot(requestSlot)
 						end
 
-						if (maxRequester > 0 and itemCount > proto.stack_size * maxRequester) then
-							itemCount = proto.stack_size * maxRequester
-						end
+						local slot = 1
+						for itemName in pairs(inputs) do
+							local itemCount = math.ceil(inputs[itemName])
 
-						chest.set_request_slot(
-						{
-							name = itemName,
-							count = math.ceil(itemCount)
-						}, slot)
-						slot = slot + 1
+							local proto = game.item_prototypes[itemName]
+							if (minRequester > 0 and itemCount < proto.stack_size * minRequester) then
+								itemCount = proto.stack_size * minRequester
+							end
+
+							if (maxRequester > 0 and itemCount > proto.stack_size * maxRequester) then
+								itemCount = proto.stack_size * maxRequester
+							end
+
+							chest.set_request_slot(
+							{
+								name = itemName,
+								count = math.ceil(itemCount)
+							}, slot)
+							slot = slot + 1
+						end
 					end
 				elseif (chest.prototype.logistic_mode == "passive-provider" and bufferTimeProvider > 0) then
 					for inserter = 1, #inserters do
