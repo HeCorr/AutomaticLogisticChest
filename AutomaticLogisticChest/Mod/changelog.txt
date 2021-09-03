@@ -1,0 +1,51 @@
+﻿---------------------------------------------------------------------------------------------------
+Version: 1.1.1
+Date: 2021.09.03
+  Changes:
+    - Productivity is now added in calculation for provider chests.
+---------------------------------------------------------------------------------------------------
+Version: 1.1.0
+Date: 2021.09.03
+  Changes:
+    - Changed versioning and added compatibility for Factorio 1.1
+---------------------------------------------------------------------------------------------------
+Version: 0.7132.29867
+  Changes:
+    - Bugfix for not resetting requester chests when no machine/smelter is connected
+---------------------------------------------------------------------------------------------------
+Version: 0.7128.33835
+  Changes:
+    - Bugfix for overriding existing conditions on a requester
+---------------------------------------------------------------------------------------------------
+Version: 0.7128.32690
+  Changes:
+    - Added two hotkeys.
+      One for reevaluating the chest under the cursor and one for reevaluating all chests.
+      Tested with 0.16.51, but should be compatible with 0.17.x
+---------------------------------------------------------------------------------------------------
+Version: 0.7005.33974
+  Changes:
+    - Changed to 0.17.
+      Untested!
+---------------------------------------------------------------------------------------------------
+Version: 0.6579.27338
+  Changes:
+    - Added german localisation
+---------------------------------------------------------------------------------------------------
+Version: 0.6578.39285
+  Changes:
+    - Fixed detection of existing conditions.
+---------------------------------------------------------------------------------------------------
+Version: 0.6578.31914
+  Changes:
+    - Added option to not override existing inserter conditions.
+      Added option to only use modlogic when chest placed manually, by bot or by both.
+      Changed logic to use entity.effects
+---------------------------------------------------------------------------------------------------
+Version: 0.6577.34562
+  Changes:
+    - Added choice how to connect the provider.
+---------------------------------------------------------------------------------------------------
+Version: 0.6572.42672
+  Changes:
+    - Port to 0.16

@@ -75,7 +75,7 @@ function handleEvent(chest)
 						end
 					end
 
-					if #inputs > 0 then					
+					if next(inputs) ~= nil then					
 						for requestSlot = 1, chest.request_slot_count do
 							chest.clear_request_slot(requestSlot)
 						end
@@ -178,7 +178,7 @@ end
 function calcInputs(entity, inputs, bufferTime)
 
 	-- calculate the real craftingtime of this entity for this recipe
-	local craftingTime = entity.get_recipe().energy / getCraftingSpeed(entity)
+	local craftingTime = entity.get_recipe().energy / entity.crafting_speed
 	
 	-- if craftingtime > bufferTime buffer enough items for one craft, else buffer how much the entity consumes in the bufferTime
 	for _, ingred in ipairs(entity.get_recipe().ingredients) do
@@ -207,7 +207,7 @@ end
 function calcOutputs(entity, outputs, bufferTime)
 
 	-- calculate the real craftingtime of this entity for this recipe
-	local craftingTime = entity.get_recipe().energy / getCraftingSpeed(entity)
+	local craftingTime = entity.get_recipe().energy / entity.crafting_speed
 	
 	-- if craftingtime > bufferTime buffer the items of one craft, else buffer how much the entity crafts in the bufferTime
 	for _, product in ipairs(entity.get_recipe().products) do
@@ -221,6 +221,8 @@ function calcOutputs(entity, outputs, bufferTime)
 		end
 		
 		if amount > 0 then
+			amount = amount * (1 + entity.productivity_bonus)
+
 			if(craftingTime < bufferTime) then
 				amount = (amount / craftingTime) * bufferTime
 			end
@@ -232,16 +234,4 @@ function calcOutputs(entity, outputs, bufferTime)
 			outputs[product.name] = outputs[product.name] + amount
 		end
 	end
-end
-
-function getCraftingSpeed(entity)
-	local craftingSpeed = entity.prototype.crafting_speed
-
-	if entity.effects ~= nil then
-		if entity.effects.speed ~= nil then
-			craftingSpeed = entity.prototype.crafting_speed * ( 1 + entity.effects.speed.bonus )
-		end
-	end
-
-	return craftingSpeed
 end

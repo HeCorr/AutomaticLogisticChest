@@ -19,8 +19,9 @@ namespace AutomaticLogisticChest
             String infoJson = info.TransformText();
             System.IO.File.WriteAllText("Mod/info.json", infoJson);
 
-            string fileName = String.Format("AutomaticLogisticChest_{0}.zip", System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString().Substring(2));
-            string dest = string.Format(@"{0}\Factorio\mods", Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData));
+            string fileName = $"AutomaticLogisticChest_{System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString().Substring(2)}.zip";
+
+            string dest = $@"{Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData)}\Factorio\mods_dev";
 
             foreach (var file in new DirectoryInfo(dest).EnumerateFiles("AutomaticLogisticChest_*.*"))
             {
@@ -43,11 +44,10 @@ namespace AutomaticLogisticChest
 
 
 
-            string destFile = string.Format(@"{0}\{1}", dest, fileName);
+            string destFile = $@"{dest}\{fileName}";
 
             File.Copy(fileName, destFile);
-
-            Process.Start(@"C:\Users\TillO\Desktop\Factorio.url");
+            //Process.Start($@"{Environment.GetFolderPath(Environment.SpecialFolder.ProgramFilesX86)}\Steam\steamapps\common\Factorio\bin\x64\factorio.exe", $@"--mod-directory ""{dest}"" --load-game ""{dest}\..\saves\ModTest.zip""");
         }
     }
 }

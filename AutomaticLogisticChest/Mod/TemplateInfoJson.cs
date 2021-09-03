@@ -19,36 +19,31 @@ namespace AutomaticLogisticChest.Mod
     /// Class to produce the template output
     /// </summary>
     
-    #line 1 "C:\Users\TillO\source\repos\AutomaticLogisticChest\AutomaticLogisticChest\Mod\TemplateInfoJson.tt"
     [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.TextTemplating", "15.0.0.0")]
     public partial class TemplateInfoJson : TemplateInfoJsonBase
     {
-#line hidden
         /// <summary>
         /// Create the template output
         /// </summary>
         public virtual string TransformText()
         {
-            this.Write("{\r\n\t\"name\": \"AutomaticLogisticChest\",\r\n\t\"version\": \"");
-            
-            #line 9 "C:\Users\TillO\source\repos\AutomaticLogisticChest\AutomaticLogisticChest\Mod\TemplateInfoJson.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString().Substring(2)));
-            
-            #line default
-            #line hidden
-            this.Write(@""",
+            var modVersion = this.ToStringHelper.ToStringWithCulture(System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString().Substring(2));
+            var factorioVersion = modVersion.Substring(0, modVersion.IndexOf('.', modVersion.IndexOf('.')+1));
+
+            this.Write(
+$@"{"{"}
+    ""name"": ""AutomaticLogisticChest"",
+    ""version"": ""{modVersion}"",
 	""title"": ""Automatic Logistic Chests"",
 	""description"": ""The mods sets the request of requester chest and the network condition of inserters that insert into passive provider chests when those chests are build."",
-	""author"": ""Hideaki"",
-	""factorio_version"": ""0.17"",
-	""dependencies"": [""base >= 0.16.0""]
-}");
+	""author"": ""Belaith"",
+	""factorio_version"": ""{factorioVersion}"",
+	""dependencies"": [""base >= {factorioVersion}.0""]
+{"}"}");
             return this.GenerationEnvironment.ToString();
         }
     }
     
-    #line default
-    #line hidden
     #region Base class
     /// <summary>
     /// Base class for this transformation

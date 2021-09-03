@@ -87,6 +87,9 @@
     </None>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Mod\changelog.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="Mod\TemplateInfoJson.tt">
       <Generator>TextTemplatingFilePreprocessor</Generator>
       <LastGenOutput>TemplateInfoJson.cs</LastGenOutput>

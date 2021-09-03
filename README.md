@@ -21,6 +21,13 @@ Type of connection of provider: How should the Inserter be connected to the prov
 Setting a option to 0 deactivates that feature.
 
 Changelog:
+
+1.1.1
+Productivity is now added in calculation for provider chests.
+
+1.1.0
+Changed versioning and added compatibility for Factorio 1.1
+
 0.7132.29867
 Bugfix for not resetting requester chests when no machine/smelter is connected
 
