@@ -124,59 +124,70 @@ function handleEvent(entity)
 								if (pickupTarget ~= nil and pickupTarget.type ~= nil and (pickupTarget.type == "assembling-machine" or pickupTarget.type == "furnace") and pickupTarget.get_recipe() ~= nil) then
 									
 									local outputs = {}
+									local output = nil
 									calcOutputs(pickupTarget, outputs, bufferTimeProvider)	
 									
+									-- Find output with same name as recipe, else take first
 									for itemName in pairs(outputs) do
-										local itemCount = math.ceil(outputs[itemName])
-
-										local proto = game.item_prototypes[itemName]
-										if (minProvider > 0 and itemCount < proto.stack_size * minProvider) then
-											itemCount = proto.stack_size * minProvider
+										if (output == nil) then
+											output = itemName
 										end
 
-										if (maxProvider > 0 and itemCount > proto.stack_size * maxProvider) then
-											itemCount = proto.stack_size * maxProvider
-										end
-
-										local condition = 
-										{
-											condition = 
-											{
-												comparator = "<",
-												first_signal =
-												{
-													type = "item",
-													name = itemName
-												},
-												constant = math.ceil(itemCount)
-											}
-										}
-										
-										local controlBehavior = inserters[inserter].get_or_create_control_behavior()
-
-										if (overrideExisting or not (controlBehavior.get_circuit_network(defines.wire_type.green) ~=nil or controlBehavior.get_circuit_network(defines.wire_type.red) ~=nil or controlBehavior.connect_to_logistic_network == true)) then
-											if (connectionType == "Logistic")  then
-												controlBehavior.connect_to_logistic_network = true
-												controlBehavior.logistic_condition = condition
-											else
-												if (connectionType == "GreenCable") then
-													entity.connect_neighbour(
-													{
-														wire = defines.wire_type.green,
-														target_entity = inserters[inserter]
-													})
-												else
-													entity.connect_neighbour(
-													{
-														wire = defines.wire_type.red,
-														target_entity = inserters[inserter]
-													})
-												end
-
-												controlBehavior.circuit_condition = condition
-											end
+										if (itemName == pickupTarget.get_recipe().name) then
+											output = itemName
 										end
 									end
+
+									local itemCount = math.ceil(outputs[output])
+
+									local proto = game.item_prototypes[output]
+									if (minProvider > 0 and itemCount < proto.stack_size * minProvider) then
+										itemCount = proto.stack_size * minProvider
+									end
+
+									if (maxProvider > 0 and itemCount > proto.stack_size * maxProvider) then
+										itemCount = proto.stack_size * maxProvider
+									end
+
+									local condition = 
+									{
+										condition = 
+										{
+											comparator = "<",
+											first_signal =
+											{
+												type = "item",
+												name = output
+											},
+											constant = math.ceil(itemCount)
+										}
+									}
+									
+									local controlBehavior = inserters[inserter].get_or_create_control_behavior()
+
+									if (overrideExisting or not (controlBehavior.get_circuit_network(defines.wire_type.green) ~=nil or controlBehavior.get_circuit_network(defines.wire_type.red) ~=nil or controlBehavior.connect_to_logistic_network == true)) then
+										if (connectionType == "Logistic")  then
+											controlBehavior.connect_to_logistic_network = true
+											controlBehavior.logistic_condition = condition
+										else
+											if (connectionType == "GreenCable") then
+												entity.connect_neighbour(
+												{
+													wire = defines.wire_type.green,
+													target_entity = inserters[inserter]
+												})
+											else
+												entity.connect_neighbour(
+												{
+													wire = defines.wire_type.red,
+													target_entity = inserters[inserter]
+												})
+											end
+
+											controlBehavior.circuit_condition = condition
+										end
+									end
+									
 								end
 							end
 						end
