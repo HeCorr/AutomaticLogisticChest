@@ -141,7 +141,7 @@ function handleEvent(entity)
 									end
 
 									local item = outputs[output]
-									local itemCount = math.ceil(outputs[output])
+									local itemCount = math.ceil(item.amount)
 
 									if (minProvider > 0 and itemCount < item.stack_size * minProvider) then
 										itemCount = item.stack_size * minProvider
@@ -304,13 +304,17 @@ function calcOutputs(entity, outputs, bufferTime)
 end
 
 function modifyRequestAmounts (chest, inputs)
-	local slots = chest.get_inventory(defines.inventory.chest)
+	local slots = #(chest.get_inventory(defines.inventory.chest))
 	local stacks = 0
-	local freeSlots = slots - #inputs -- Keep 1 slot per Item free, for overfilling
+	local differentInputs = 0
 	
 	for itemName in pairs(inputs) do
-		stacks = stacks + math.ceil(inputs.amount / inputs.stacksize * 1.0)
+		local input = inputs[itemName]
+		differentInputs = differentInputs + 1 
+		stacks = stacks + math.ceil(input.amount / input.stacksize)
 	end
+
+	local freeSlots = slots - differentInputs -- Keep 1 slot per Item free, for overfilling
 
 	if (slots < #inputs) then
 		-- Not enough slots in chest, remove all requests
@@ -331,7 +335,7 @@ function modifyRequestAmounts (chest, inputs)
 			return
 		else
 			-- Not enough Slots for request, modifier request and keep ratio
-			local modifier = (freeSlots / stacks * 1.0)
+			local modifier = (freeSlots / stacks)
 			for itemName in pairs(inputs) do
 				inputs[itemName].amount =  inputs[itemName].amount * modifier
 			end
