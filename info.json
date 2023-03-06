@@ -1,6 +1,6 @@
 {
     "name": "AutomaticLogisticChest",
-    "version": "1.1.2",
+    "version": "1.1.3",
 	"title": "Automatic Logistic Chests",
 	"description": "The mods sets the request of requester chest and the network condition of inserters that insert into passive provider chests when those chests are build.",
 	"author": "Hideaki",
