@@ -97,15 +97,15 @@ function handleEvent(entity)
 
 							local slot = 1
 							for itemName in pairs(inputs) do
-								local itemCount = math.ceil(inputs[itemName])
+								local item = inputs[itemName]
+								local itemCount = math.ceil(item.amount)
 
-								local proto = game.item_prototypes[itemName]
-								if (minRequester > 0 and itemCount < proto.stack_size * minRequester) then
-									itemCount = proto.stack_size * minRequester
+								if (minRequester > 0 and itemCount < item.stacksize * minRequester) then
+									itemCount = item.stacksize * minRequester
 								end
 
-								if (maxRequester > 0 and itemCount > proto.stack_size * maxRequester) then
-									itemCount = proto.stack_size * maxRequester
+								if (maxRequester > 0 and itemCount > item.stacksize * maxRequester) then
+									itemCount = item.stacksize * maxRequester
 								end
 
 								entity.set_request_slot(
@@ -251,10 +251,14 @@ function calcInputs(entity, inputs, bufferTime)
 			end
 			
 			if (inputs[ingred.name] == nil) then
-				inputs[ingred.name] = 0
+				inputs[ingred.name] = 
+				{
+					amount = 0,
+					stacksize = game.item_prototypes[ingred.name].stack_size
+				}
 			end
 					
-			inputs[ingred.name] = inputs[ingred.name] + amount
+			inputs[ingred.name].amount = inputs[ingred.name].amount + amount
 		end
 	end
 end
@@ -284,10 +288,15 @@ function calcOutputs(entity, outputs, bufferTime)
 			end
 			
 			if (outputs[product.name] == nil) then
-				outputs[product.name] = 0
+
+				outputs[product.name] =
+				{
+					amount = 0,
+					stacksize = game.item_prototypes[product.name].stack_size
+				}
 			end
 			
-			outputs[product.name] = outputs[product.name] + amount
+			outputs[product.name].amount = outputs[product.name].amount + amount
 		end
 	end
 end
