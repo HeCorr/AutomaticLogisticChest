@@ -90,6 +90,8 @@ function handleEvent(entity)
 							end
 						end
 
+						modifyRequestAmounts(entity, inputs)
+
 						if (next(inputs) ~= nil) then					
 							for requestSlot = 1, entity.request_slot_count do
 								entity.clear_request_slot(requestSlot)
@@ -301,11 +303,39 @@ function calcOutputs(entity, outputs, bufferTime)
 	end
 end
 
-function modifyRequestAmounts (chest, outputs)
+function modifyRequestAmounts (chest, inputs)
 	local slots = chest.get_inventory(defines.inventory.chest)
 	local stacks = 0
-
+	local freeSlots = slots - #inputs -- Keep 1 slot per Item free, for overfilling
+	
 	for itemName in pairs(inputs) do
-		stacks = stacks + math.ceil(itemCount / stacksize * 1.0)
+		stacks = stacks + math.ceil(inputs.amount / inputs.stacksize * 1.0)
 	end
+
+	if (slots < #inputs) then
+		-- Not enough slots in chest, remove all requests
+		for itemName in pairs(inputs) do
+			inputs[itemName] = nil
+		end
+		return
+	end
+
+	if (freeSlots <= #inputs) then
+		-- Not enough for 2 stacks each, set all to 1 stack
+		for itemName in pairs(inputs) do
+			inputs[itemName].amount =  inputs[itemName].stacksize
+		end
+	else
+		if (freeSlots >= stacks) then
+			-- Enough Slots for request, don't modifie
+			return
+		else
+			-- Not enough Slots for request, modifier request and keep ratio
+			local modifier = (freeSlots / stacks * 1.0)
+			for itemName in pairs(inputs) do
+				inputs[itemName].amount =  inputs[itemName].amount * modifier
+			end
+		end
+	end
+
 end
