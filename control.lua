@@ -138,15 +138,15 @@ function handleEvent(entity)
 										end
 									end
 
+									local item = outputs[output]
 									local itemCount = math.ceil(outputs[output])
 
-									local proto = game.item_prototypes[output]
-									if (minProvider > 0 and itemCount < proto.stack_size * minProvider) then
-										itemCount = proto.stack_size * minProvider
+									if (minProvider > 0 and itemCount < item.stack_size * minProvider) then
+										itemCount = item.stack_size * minProvider
 									end
 
-									if (maxProvider > 0 and itemCount > proto.stack_size * maxProvider) then
-										itemCount = proto.stack_size * maxProvider
+									if (maxProvider > 0 and itemCount > item.stack_size * maxProvider) then
+										itemCount = item.stack_size * maxProvider
 									end
 
 									local condition = 
@@ -298,5 +298,14 @@ function calcOutputs(entity, outputs, bufferTime)
 			
 			outputs[product.name].amount = outputs[product.name].amount + amount
 		end
+	end
+end
+
+function modifyRequestAmounts (chest, outputs)
+	local slots = chest.get_inventory(defines.inventory.chest)
+	local stacks = 0
+
+	for itemName in pairs(inputs) do
+		stacks = stacks + math.ceil(itemCount / stacksize * 1.0)
 	end
 end
