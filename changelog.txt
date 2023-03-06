@@ -2,8 +2,8 @@
 Version: 1.1.3
 Date: 2023-03-06
   Changes:
-    - Provider: Try to guesss what product is the primary product of of multiproduct recipe
-    - Requester: Downscale request when chestsize insufficent
+    - Provider: Try to guesss what product is the primary product of a multiproduct recipe
+    - Requester: Downscale request when chestsize is insufficent
 ---------------------------------------------------------------------------------------------------
 Version: 1.1.2
 Date: 2021-09-05
