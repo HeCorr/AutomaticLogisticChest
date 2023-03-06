@@ -102,12 +102,12 @@ function handleEvent(entity)
 								local item = inputs[itemName]
 								local itemCount = math.ceil(item.amount)
 
-								if (minRequester > 0 and itemCount < item.stacksize * minRequester) then
-									itemCount = item.stacksize * minRequester
+								if (minRequester > 0 and itemCount < item.stack_size * minRequester) then
+									itemCount = item.stack_size * minRequester
 								end
 
-								if (maxRequester > 0 and itemCount > item.stacksize * maxRequester) then
-									itemCount = item.stacksize * maxRequester
+								if (maxRequester > 0 and itemCount > item.stack_size * maxRequester) then
+									itemCount = item.stack_size * maxRequester
 								end
 
 								entity.set_request_slot(
@@ -256,7 +256,7 @@ function calcInputs(entity, inputs, bufferTime)
 				inputs[ingred.name] = 
 				{
 					amount = 0,
-					stacksize = game.item_prototypes[ingred.name].stack_size
+					stack_size = game.item_prototypes[ingred.name].stack_size
 				}
 			end
 					
@@ -294,7 +294,7 @@ function calcOutputs(entity, outputs, bufferTime)
 				outputs[product.name] =
 				{
 					amount = 0,
-					stacksize = game.item_prototypes[product.name].stack_size
+					stack_size = game.item_prototypes[product.name].stack_size
 				}
 			end
 			
@@ -311,7 +311,7 @@ function modifyRequestAmounts (chest, inputs)
 	for itemName in pairs(inputs) do
 		local input = inputs[itemName]
 		differentInputs = differentInputs + 1 
-		stacks = stacks + math.ceil(input.amount / input.stacksize)
+		stacks = stacks + math.ceil(input.amount / input.stack_size)
 	end
 
 	local freeSlots = slots - differentInputs -- Keep 1 slot per Item free, for overfilling
@@ -327,7 +327,7 @@ function modifyRequestAmounts (chest, inputs)
 	if (freeSlots <= #inputs) then
 		-- Not enough for 2 stacks each, set all to 1 stack
 		for itemName in pairs(inputs) do
-			inputs[itemName].amount =  inputs[itemName].stacksize
+			inputs[itemName].amount =  inputs[itemName].stack_size
 		end
 	else
 		if (freeSlots >= stacks) then
