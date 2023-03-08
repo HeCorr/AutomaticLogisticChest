@@ -1,4 +1,12 @@
 ﻿---------------------------------------------------------------------------------------------------
+Version: 1.1.4
+Date: 2023-03-08
+  Changes:
+    - Improved main product detection
+    - Added support for storage chests
+      Using the same logic as passive provider chests for the inserters
+      Also setting the logistic filter
+---------------------------------------------------------------------------------------------------
 Version: 1.1.3
 Date: 2023-03-06
   Changes:
