@@ -126,70 +126,60 @@ function handleEvent(entity)
 								if (pickupTarget ~= nil and pickupTarget.type ~= nil and (pickupTarget.type == "assembling-machine" or pickupTarget.type == "furnace") and pickupTarget.get_recipe() ~= nil) then
 									
 									local outputs = {}
-									local output = nil
 									calcOutputs(pickupTarget, outputs, bufferTimeProvider)	
-									
-									-- Find output with same name as recipe, else take first
-									for itemName in pairs(outputs) do
-										if (output == nil) then
-											output = itemName
+									local mainOutput = getMainProduct(pickupTarget.get_recipe().prototype)								
+
+									if (mainOutput ~= nil) then										
+										local item = outputs[mainOutput]
+										local itemCount = math.ceil(item.amount)
+
+										if (minProvider > 0 and itemCount < item.stack_size * minProvider) then
+											itemCount = item.stack_size * minProvider
 										end
 
-										if (itemName == pickupTarget.get_recipe().name) then
-											output = itemName
+										if (maxProvider > 0 and itemCount > item.stack_size * maxProvider) then
+											itemCount = item.stack_size * maxProvider
 										end
-									end
 
-									local item = outputs[output]
-									local itemCount = math.ceil(item.amount)
-
-									if (minProvider > 0 and itemCount < item.stack_size * minProvider) then
-										itemCount = item.stack_size * minProvider
-									end
-
-									if (maxProvider > 0 and itemCount > item.stack_size * maxProvider) then
-										itemCount = item.stack_size * maxProvider
-									end
-
-									local condition = 
-									{
-										condition = 
+										local condition = 
 										{
-											comparator = "<",
-											first_signal =
+											condition = 
 											{
-												type = "item",
-												name = output
-											},
-											constant = math.ceil(itemCount)
+												comparator = "<",
+												first_signal =
+												{
+													type = "item",
+													name = mainOutput
+												},
+												constant = math.ceil(itemCount)
+											}
 										}
-									}
-									
-									local controlBehavior = inserters[inserter].get_or_create_control_behavior()
+										
+										local controlBehavior = inserters[inserter].get_or_create_control_behavior()
 
-									if (overrideExisting or not (controlBehavior.get_circuit_network(defines.wire_type.green) ~=nil or controlBehavior.get_circuit_network(defines.wire_type.red) ~=nil or controlBehavior.connect_to_logistic_network == true)) then
-										if (connectionType == "Logistic")  then
-											controlBehavior.connect_to_logistic_network = true
-											controlBehavior.logistic_condition = condition
-										else
-											if (connectionType == "GreenCable") then
-												entity.connect_neighbour(
-												{
-													wire = defines.wire_type.green,
-													target_entity = inserters[inserter]
-												})
+										if (overrideExisting or not (controlBehavior.get_circuit_network(defines.wire_type.green) ~=nil or controlBehavior.get_circuit_network(defines.wire_type.red) ~=nil or controlBehavior.connect_to_logistic_network == true)) then
+											if (connectionType == "Logistic")  then
+												controlBehavior.connect_to_logistic_network = true
+												controlBehavior.logistic_condition = condition
 											else
-												entity.connect_neighbour(
-												{
-													wire = defines.wire_type.red,
-													target_entity = inserters[inserter]
-												})
-											end
+												if (connectionType == "GreenCable") then
+													entity.connect_neighbour(
+													{
+														wire = defines.wire_type.green,
+														target_entity = inserters[inserter]
+													})
+												else
+													entity.connect_neighbour(
+													{
+														wire = defines.wire_type.red,
+														target_entity = inserters[inserter]
+													})
+												end
 
-											controlBehavior.circuit_condition = condition
+												controlBehavior.circuit_condition = condition
+											end
 										end
-									end
-									
+									end									
 								end
 							end
 						end
@@ -342,4 +332,28 @@ function modifyRequestAmounts (chest, inputs)
 		end
 	end
 
+end
+
+function getMainProduct(recipePrototype)
+	if (recipePrototype.main_product ~= nil and recipePrototype.main_product.type == "item") then
+		-- return item marked as main product
+		return recipePrototype.main_product.name
+	else
+		-- return item with same name as recipe
+		for _, product in ipairs(recipePrototype.products) do
+			if (product.type == "item" and product.name == recipePrototype.name) then
+				return product.name
+			end
+		end
+
+		-- fallback: return first item
+		for _, product in ipairs(recipePrototype.products) do
+			if (product.type == "item") then
+				return product.name
+			end
+		end
+	end
+	
+	-- no product item
+	return nil
 end
