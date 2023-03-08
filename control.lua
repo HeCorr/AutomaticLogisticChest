@@ -58,7 +58,7 @@ function handleEvent(entity)
 			local minProvider = settings.global["AutomaticLogisticChest-MinProvider"].value
 			local maxProvider = settings.global["AutomaticLogisticChest-MaxProvider"].value
 		
-			if entity.prototype ~= nil and entity.prototype.logistic_mode ~= nil and (entity.prototype.logistic_mode == "requester" or entity.prototype.logistic_mode == "passive-provider" or entity.prototype.logistic_mode == "storage") then
+			if entity.prototype ~= nil and entity.prototype.logistic_mode ~= nil and (entity.prototype.logistic_mode == "requester" or entity.prototype.logistic_mode == "passive-provider" or entity.prototype.logistic_mode == "storage" or entity.prototype.logistic_mode == "active-provider") then
 				local inserters = entity.surface.find_entities_filtered(
 				{
 					area =
@@ -118,7 +118,7 @@ function handleEvent(entity)
 								slot = slot + 1
 							end
 						end
-					elseif ((entity.prototype.logistic_mode == "passive-provider" or entity.prototype.logistic_mode == "storage") and bufferTimeProvider > 0) then
+					elseif ((entity.prototype.logistic_mode == "passive-provider" or entity.prototype.logistic_mode == "storage" or entity.prototype.logistic_mode == "active-provider") and bufferTimeProvider > 0) then
 						for inserter = 1, #inserters do
 							local dropTarget = getDropTarget(inserters[inserter])
 							if (dropTarget ~= nil and dropTarget == entity) then
@@ -183,6 +183,20 @@ function handleEvent(entity)
 										if (entity.prototype.logistic_mode == "storage") then
 											entity.storage_filter = game.item_prototypes[mainOutput]
 										end
+
+										if (inserters[inserter].filter_slot_count > 0) then
+											for filterSlot = 1, inserters[inserter].filter_slot_count do
+												inserters[inserter].set_filter(filterSlot, nil)
+											end
+
+											inserters[inserter].set_filter(1, mainOutput)
+
+											if (entity.prototype.logistic_mode == "active-provider") then
+												inserters[inserter].inserter_filter_mode = "blacklist"
+											else
+												inserters[inserter].inserter_filter_mode = "whitelist"
+											end
+										end										 
 									end									
 								end
 							end
