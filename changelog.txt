@@ -1,4 +1,11 @@
 ﻿---------------------------------------------------------------------------------------------------
+Version: 1.1.5
+Date: 2023-03-08
+  Changes:
+    - Added support for filter inserter
+      Filter inserter on passive provider & storage chest: whitelist filter on main product
+      Filter inserter on active provider: blacklist filter on main product
+---------------------------------------------------------------------------------------------------
 Version: 1.1.4
 Date: 2023-03-08
   Changes:
