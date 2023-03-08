@@ -58,7 +58,7 @@ function handleEvent(entity)
 			local minProvider = settings.global["AutomaticLogisticChest-MinProvider"].value
 			local maxProvider = settings.global["AutomaticLogisticChest-MaxProvider"].value
 		
-			if entity.prototype ~= nil and entity.prototype.logistic_mode ~= nil and (entity.prototype.logistic_mode == "requester" or entity.prototype.logistic_mode == "passive-provider") then
+			if entity.prototype ~= nil and entity.prototype.logistic_mode ~= nil and (entity.prototype.logistic_mode == "requester" or entity.prototype.logistic_mode == "passive-provider" or entity.prototype.logistic_mode == "storage") then
 				local inserters = entity.surface.find_entities_filtered(
 				{
 					area =
@@ -118,7 +118,7 @@ function handleEvent(entity)
 								slot = slot + 1
 							end
 						end
-					elseif (entity.prototype.logistic_mode == "passive-provider" and bufferTimeProvider > 0) then
+					elseif ((entity.prototype.logistic_mode == "passive-provider" or entity.prototype.logistic_mode == "storage") and bufferTimeProvider > 0) then
 						for inserter = 1, #inserters do
 							local dropTarget = getDropTarget(inserters[inserter])
 							if (dropTarget ~= nil and dropTarget == entity) then
@@ -178,6 +178,10 @@ function handleEvent(entity)
 
 												controlBehavior.circuit_condition = condition
 											end
+										end
+
+										if (entity.prototype.logistic_mode == "storage") then
+											entity.storage_filter = game.item_prototypes[mainOutput]
 										end
 									end									
 								end
