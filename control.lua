@@ -129,61 +129,65 @@ function handleEvent(entity)
 									calcOutputs(pickupTarget, outputs, bufferTimeProvider)	
 									local mainOutput = getMainProduct(pickupTarget.get_recipe().prototype)								
 
-									if (mainOutput ~= nil) then										
-										local item = outputs[mainOutput]
-										local itemCount = math.ceil(item.amount)
+									if (mainOutput ~= nil) then
+										if (entity.prototype.logistic_mode ~= "active-provider") then
+											local item = outputs[mainOutput]
+											local itemCount = math.ceil(item.amount)
 
-										if (minProvider > 0 and itemCount < item.stack_size * minProvider) then
-											itemCount = item.stack_size * minProvider
-										end
+											if (minProvider > 0 and itemCount < item.stack_size * minProvider) then
+												itemCount = item.stack_size * minProvider
+											end
 
-										if (maxProvider > 0 and itemCount > item.stack_size * maxProvider) then
-											itemCount = item.stack_size * maxProvider
-										end
+											if (maxProvider > 0 and itemCount > item.stack_size * maxProvider) then
+												itemCount = item.stack_size * maxProvider
+											end
 
-										local condition = 
-										{
-											condition = 
+											local condition = 
 											{
-												comparator = "<",
-												first_signal =
+												condition = 
 												{
-													type = "item",
-													name = mainOutput
-												},
-												constant = math.ceil(itemCount)
+													comparator = "<",
+													first_signal =
+													{
+														type = "item",
+														name = mainOutput
+													},
+													constant = math.ceil(itemCount)
+												}
 											}
-										}
-										
-										local controlBehavior = inserters[inserter].get_or_create_control_behavior()
 
-										if (overrideExisting or not (controlBehavior.get_circuit_network(defines.wire_type.green) ~=nil or controlBehavior.get_circuit_network(defines.wire_type.red) ~=nil or controlBehavior.connect_to_logistic_network == true)) then
-											if (connectionType == "Logistic")  then
-												controlBehavior.connect_to_logistic_network = true
-												controlBehavior.logistic_condition = condition
-											else
-												if (connectionType == "GreenCable") then
-													entity.connect_neighbour(
-													{
-														wire = defines.wire_type.green,
-														target_entity = inserters[inserter]
-													})
+											local controlBehavior = inserters[inserter].get_or_create_control_behavior()
+
+											if (overrideExisting or not (controlBehavior.get_circuit_network(defines.wire_type.green) ~=nil or controlBehavior.get_circuit_network(defines.wire_type.red) ~=nil or controlBehavior.connect_to_logistic_network == true)) then
+												if (connectionType == "Logistic")  then
+													controlBehavior.connect_to_logistic_network = true
+													controlBehavior.logistic_condition = condition
 												else
-													entity.connect_neighbour(
-													{
-														wire = defines.wire_type.red,
-														target_entity = inserters[inserter]
-													})
-												end
+													if (connectionType == "GreenCable") then
+														entity.connect_neighbour(
+														{
+															wire = defines.wire_type.green,
+															target_entity = inserters[inserter]
+														})
+													else
+														entity.connect_neighbour(
+														{
+															wire = defines.wire_type.red,
+															target_entity = inserters[inserter]
+														})
+													end
 
-												controlBehavior.circuit_condition = condition
+													controlBehavior.circuit_condition = condition
+												end
 											end
 										end
 
+										-- Setting filter of storage chests
 										if (entity.prototype.logistic_mode == "storage") then
 											entity.storage_filter = game.item_prototypes[mainOutput]
 										end
 
+										-- Setting filter of filter inserters
 										if (inserters[inserter].filter_slot_count > 0) then
 											for filterSlot = 1, inserters[inserter].filter_slot_count do
 												inserters[inserter].set_filter(filterSlot, nil)
