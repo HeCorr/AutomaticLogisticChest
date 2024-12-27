@@ -1,6 +1,6 @@
 ﻿script.on_event("AutomaticLogisticChest-HotKeyHoover", function(event)
 	local player = game.players[event.player_index]
-	handleEvent(player.selected)	
+	handleEvent(player.selected)
 end)
 
 script.on_event("AutomaticLogisticChest-HotKeyAll", function(event)
@@ -9,7 +9,7 @@ script.on_event("AutomaticLogisticChest-HotKeyAll", function(event)
 		for chest = 1, #chests do
 			handleEvent(chests[chest])
 		end
-    end
+	end
 end)
 
 script.on_event(defines.events.on_built_entity, function(event)
@@ -31,7 +31,7 @@ end)
 function handleEvent(entity)
 	if entity ~= nil and entity.type ~= nil then
 		if entity.type == "inserter" then
-			
+
 			local pickup_target = getPickupTarget(entity)
 			local drop_target = getDropTarget(entity)
 
@@ -52,12 +52,12 @@ function handleEvent(entity)
 
 			local connectionType = settings.global["AutomaticLogisticChest-ConnectionType"].value
 			local overrideExisting = settings.global["AutomaticLogisticChest-OverrideExisting"].value
-			
+
 			local minRequester = settings.global["AutomaticLogisticChest-MinRequester"].value
 			local maxRequester = settings.global["AutomaticLogisticChest-MaxRequester"].value
 			local minProvider = settings.global["AutomaticLogisticChest-MinProvider"].value
 			local maxProvider = settings.global["AutomaticLogisticChest-MaxProvider"].value
-		
+
 			if entity.prototype ~= nil and entity.prototype.logistic_mode ~= nil and (entity.prototype.logistic_mode == "requester" or entity.prototype.logistic_mode == "passive-provider" or entity.prototype.logistic_mode == "storage" or entity.prototype.logistic_mode == "active-provider") then
 				local inserters = entity.surface.find_entities_filtered(
 				{
@@ -74,12 +74,12 @@ function handleEvent(entity)
 					},
 					type = "inserter"
 				})
-			
+
 				if (#inserters > 0) then
-					
+
 					if (entity.prototype.logistic_mode == "requester" and bufferTimeRequester > 0) then
 						local inputs = {}
-						
+
 						for inserter = 1, #inserters do
 							local pickupTarget = getPickupTarget(inserters[inserter])
 							if (pickupTarget ~= nil and pickupTarget == entity) then
@@ -92,7 +92,7 @@ function handleEvent(entity)
 
 						modifyRequestAmounts(entity, inputs)
 
-						if (next(inputs) ~= nil) then					
+						if (next(inputs) ~= nil) then
 							for requestSlot = 1, entity.request_slot_count do
 								entity.clear_request_slot(requestSlot)
 							end
@@ -124,10 +124,10 @@ function handleEvent(entity)
 							if (dropTarget ~= nil and dropTarget == entity) then
 								local pickupTarget = getPickupTarget(inserters[inserter])
 								if (pickupTarget ~= nil and pickupTarget.type ~= nil and (pickupTarget.type == "assembling-machine" or pickupTarget.type == "furnace") and pickupTarget.get_recipe() ~= nil) then
-									
+
 									local outputs = {}
-									calcOutputs(pickupTarget, outputs, bufferTimeProvider)	
-									local mainOutput = getMainProduct(pickupTarget.get_recipe().prototype)								
+									calcOutputs(pickupTarget, outputs, bufferTimeProvider)
+									local mainOutput = getMainProduct(pickupTarget.get_recipe().prototype)
 
 									if (mainOutput ~= nil) then
 										if (entity.prototype.logistic_mode ~= "active-provider") then
@@ -159,7 +159,7 @@ function handleEvent(entity)
 											local controlBehavior = inserters[inserter].get_or_create_control_behavior()
 
 											if (overrideExisting or not (controlBehavior.get_circuit_network(defines.wire_type.green) ~=nil or controlBehavior.get_circuit_network(defines.wire_type.red) ~=nil or controlBehavior.connect_to_logistic_network == true)) then
-												if (connectionType == "Logistic")  then
+												if (connectionType == "Logistic") then
 													controlBehavior.connect_to_logistic_network = true
 													controlBehavior.logistic_condition = condition
 												else
@@ -200,8 +200,8 @@ function handleEvent(entity)
 											else
 												inserters[inserter].inserter_filter_mode = "whitelist"
 											end
-										end										 
-									end									
+										end
+									end
 								end
 							end
 						end
@@ -246,10 +246,9 @@ end
 
 -- calculate the required input for an entity
 function calcInputs(entity, inputs, bufferTime)
-
 	-- calculate the real craftingtime of this entity for this recipe
 	local craftingTime = entity.get_recipe().energy / entity.crafting_speed
-	
+
 	-- if craftingtime > bufferTime buffer enough items for one craft, else buffer how much the entity consumes in the bufferTime
 	for _, ingred in ipairs(entity.get_recipe().ingredients) do
 		local amount = 0
@@ -258,12 +257,12 @@ function calcInputs(entity, inputs, bufferTime)
 				amount = ingred.amount
 			end
 		end
-		
+
 		if (amount > 0) then
 			if(craftingTime < bufferTime) then
 				amount = (amount / craftingTime) * bufferTime
 			end
-			
+
 			if (inputs[ingred.name] == nil) then
 				inputs[ingred.name] = 
 				{
@@ -271,7 +270,7 @@ function calcInputs(entity, inputs, bufferTime)
 					stack_size = game.item_prototypes[ingred.name].stack_size
 				}
 			end
-					
+
 			inputs[ingred.name].amount = inputs[ingred.name].amount + amount
 		end
 	end
@@ -279,10 +278,9 @@ end
 
 -- calculate the output of an entity
 function calcOutputs(entity, outputs, bufferTime)
-
 	-- calculate the real craftingtime of this entity for this recipe
 	local craftingTime = entity.get_recipe().energy / entity.crafting_speed
-	
+
 	-- if craftingtime > bufferTime buffer the items of one craft, else buffer how much the entity crafts in the bufferTime
 	for _, product in ipairs(entity.get_recipe().products) do
 		local amount = 0
@@ -293,14 +291,14 @@ function calcOutputs(entity, outputs, bufferTime)
 				amount = ((product.amount_min + product.amount_max)/ 2) * product.probability
 			end
 		end
-		
+
 		if (amount > 0) then
 			amount = amount * (1 + entity.productivity_bonus)
 
 			if(craftingTime < bufferTime) then
 				amount = (amount / craftingTime) * bufferTime
 			end
-			
+
 			if (outputs[product.name] == nil) then
 
 				outputs[product.name] =
@@ -309,7 +307,7 @@ function calcOutputs(entity, outputs, bufferTime)
 					stack_size = game.item_prototypes[product.name].stack_size
 				}
 			end
-			
+
 			outputs[product.name].amount = outputs[product.name].amount + amount
 		end
 	end
@@ -319,7 +317,7 @@ function modifyRequestAmounts (chest, inputs)
 	local slots = #(chest.get_inventory(defines.inventory.chest))
 	local stacks = 0
 	local differentInputs = 0
-	
+
 	for itemName in pairs(inputs) do
 		local input = inputs[itemName]
 		differentInputs = differentInputs + 1 
@@ -339,7 +337,7 @@ function modifyRequestAmounts (chest, inputs)
 	if (freeSlots <= #inputs) then
 		-- Not enough for 2 stacks each, set all to 1 stack
 		for itemName in pairs(inputs) do
-			inputs[itemName].amount =  inputs[itemName].stack_size
+			inputs[itemName].amount = inputs[itemName].stack_size
 		end
 	else
 		if (freeSlots >= stacks) then
@@ -349,7 +347,7 @@ function modifyRequestAmounts (chest, inputs)
 			-- Not enough Slots for request, modifier request and keep ratio
 			local modifier = (freeSlots / stacks)
 			for itemName in pairs(inputs) do
-				inputs[itemName].amount =  inputs[itemName].amount * modifier
+				inputs[itemName].amount = inputs[itemName].amount * modifier
 			end
 		end
 	end
@@ -375,7 +373,7 @@ function getMainProduct(recipePrototype)
 			end
 		end
 	end
-	
+
 	-- no product item
 	return nil
 end
