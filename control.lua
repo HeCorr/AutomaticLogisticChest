@@ -16,7 +16,7 @@ script.on_event(defines.events.on_built_entity, function(event)
 	local setting = settings.global["AutomaticLogisticChest-BuildOn"].value
 
 	if setting == "Manual" or setting == "Both" then
-		handleEvent(event.created_entity)
+		handleEvent(event.entity)
 	end
 end)
 
@@ -24,7 +24,7 @@ script.on_event(defines.events.on_robot_built_entity, function(event)
 	local setting = settings.global["AutomaticLogisticChest-BuildOn"].value
 
 	if setting == "Bot" or setting == "Both" then
-		handleEvent(event.created_entity)
+		handleEvent(event.entity)
 	end
 end)
 
