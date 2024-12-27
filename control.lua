@@ -184,7 +184,7 @@ function handleEvent(entity)
 
 										-- Setting filter of storage chests
 										if (entity.prototype.logistic_mode == "storage") then
-											entity.storage_filter = game.item_prototypes[mainOutput]
+											entity.storage_filter = prototypes.item[mainOutput]
 										end
 
 										-- Setting filter of filter inserters
@@ -267,7 +267,7 @@ function calcInputs(entity, inputs, bufferTime)
 				inputs[ingred.name] = 
 				{
 					amount = 0,
-					stack_size = game.item_prototypes[ingred.name].stack_size
+					stack_size = prototypes.item[ingred.name].stack_size
 				}
 			end
 
@@ -304,7 +304,7 @@ function calcOutputs(entity, outputs, bufferTime)
 				outputs[product.name] =
 				{
 					amount = 0,
-					stack_size = game.item_prototypes[product.name].stack_size
+					stack_size = prototypes.item[product.name].stack_size
 				}
 			end
 
