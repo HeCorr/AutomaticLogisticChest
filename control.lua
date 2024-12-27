@@ -93,29 +93,42 @@ function handleEvent(entity)
 						modifyRequestAmounts(entity, inputs)
 
 						if (next(inputs) ~= nil) then
-							for requestSlot = 1, entity.request_slot_count do
-								entity.clear_request_slot(requestSlot)
-							end
-
-							local slot = 1
-							for itemName in pairs(inputs) do
-								local item = inputs[itemName]
-								local itemCount = math.ceil(item.amount)
-
-								if (minRequester > 0 and itemCount < item.stack_size * minRequester) then
-									itemCount = item.stack_size * minRequester
+							local requesterPoint = entity.get_requester_point()
+							if requesterPoint ~= nil then
+								-- Clear all request slots
+								for i = 1, requesterPoint.sections_count do
+									local section = requesterPoint.get_section(i)
+									for j = 1, section.filters_count do
+										section.clear_slot(j)
+									end
 								end
 
-								if (maxRequester > 0 and itemCount > item.stack_size * maxRequester) then
-									itemCount = item.stack_size * maxRequester
-								end
+								local slot = 1
+								for itemName in pairs(inputs) do
+									local item = inputs[itemName]
+									local itemCount = math.ceil(item.amount)
 
-								entity.set_request_slot(
-								{
-									name = itemName,
-									count = math.ceil(itemCount)
-								}, slot)
-								slot = slot + 1
+									if (minRequester > 0 and itemCount < item.stack_size * minRequester) then
+										itemCount = item.stack_size * minRequester
+									end
+
+									if (maxRequester > 0 and itemCount > item.stack_size * maxRequester) then
+										itemCount = item.stack_size * maxRequester
+									end
+
+									for i = 1, requesterPoint.sections_count do
+										local section = requesterPoint.get_section(i)
+										if section.is_manual then
+											section.set_slot(slot,
+											{
+												value = itemName,
+												min = math.ceil(itemCount),
+												max = math.ceil(itemCount)
+											})
+										end
+									end
+									slot = slot + 1
+								end
 							end
 						end
 					elseif ((entity.prototype.logistic_mode == "passive-provider" or entity.prototype.logistic_mode == "storage" or entity.prototype.logistic_mode == "active-provider") and bufferTimeProvider > 0) then
