@@ -10,4 +10,4 @@ local HotKeyAll =
     name = "AutomaticLogisticChest-HotKeyAll",
     key_sequence = ""
 }
-data:extend{HotKeyHoover, HotKeyAll}
+data:extend({HotKeyHoover, HotKeyAll})
