@@ -4,6 +4,8 @@ Date: 2024-12-27
   Changes:
     - Update target Factorio version from 1.1 to 2.0 (Space Age)
     - Fix renamed event parameter (created_entity -> entity)
+    - Fix moved item prototypes (game.item_prototypes -> prototypes.item)
+    - Fix Requester functionality
     - Format Lua and JSON files (remove extra spacing, enforce tabs)
     - Fix release date of version 1.1.7 in changelog.txt
 ---------------------------------------------------------------------------------------------------
